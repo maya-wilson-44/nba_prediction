@@ -323,10 +323,44 @@ def main():
                         'Stat': available_stats,
                         'Value': [player_features[stat].values[0] for stat in available_stats]
                     })
+
+                    # Map the original stat names to more descriptive names
+                    stat_name_mapping = {
+                        'points': 'Points Per Game (PPG)',
+                        'assists': 'Assists Per Game (APG)',
+                        'reboundsTotal': 'Rebounds Per Game (RPG)',
+                        'Simple_PER': 'Player Efficiency Rating (PER)',
+                        'TS_Percentage': 'True Shooting Percentage (TS%)'
+                    }
+
+                    # Apply the mapping to the Stat column
+                    bar_data['Stat'] = bar_data['Stat'].map(stat_name_mapping)
+
                     # Create the bar chart
-                    fig = px.bar(bar_data, x='Stat', y='Value', title="Key Factors Influencing Salary", text='Value')
-                    fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-                    fig.update_layout(yaxis_title="Value", xaxis_title="Stat", showlegend=False)
+                    fig = px.bar(
+                        bar_data,
+                        x='Stat',
+                        y='Value',
+                        title="Key Factors Influencing Salary",
+                        text='Value'
+                    )
+
+                    # Update the text formatting and position
+                    fig.update_traces(
+                        texttemplate='%{text:.2f}',  # Format text to 2 decimal places
+                        textposition='outside'       # Position text outside the bars
+                    )
+
+                    # Update layout for better readability
+                    fig.update_layout(
+                        yaxis_title="Metric Value",          # Set y-axis title
+                        xaxis_title="Performance Metrics",   # Set x-axis title
+                        title_font_size=18,                  # Increase title font size
+                        xaxis_tickangle=-45,                 # Rotate x-axis labels for better readability
+                        showlegend=False                     # Hide legend
+                    )
+
+                    # Display the chart
                     st.plotly_chart(fig)
 
                 # Add an explanation box for the stats
