@@ -1,0 +1,6 @@
+pandas
+numpy
+requests
+nba_api
+plotly
+google-genai
