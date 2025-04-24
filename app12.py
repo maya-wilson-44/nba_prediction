@@ -624,6 +624,7 @@ def main():
                     st.error(f"Error generating contract analysis: {e}")
                     import traceback
                     st.code(traceback.format_exc())
+            
             st.markdown("---")
             st.subheader("Strategic Analysis")
             
