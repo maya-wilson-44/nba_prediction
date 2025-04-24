@@ -248,7 +248,7 @@ def main():
         st.markdown("---")
         st.subheader(f"{selected_player}'s Salary and Performance Analysis")
 
-        tab1, tab2, tab3 = st.tabs(["**Salary Prediction**", "**Performance Statistics**", "**Contract Information**"])
+        tab1, tab2, tab3 = st.tabs(["**Salary Prediction**", "**Performance Statistics**", "**Contract Information and Recommendations**"])
 
         with tab1:
             player_features = prepare_player_features(player_stats, info_df)
@@ -318,6 +318,7 @@ def main():
                 key_stats = ['points', 'assists', 'reboundsTotal', 'Simple_PER', 'TS_Percentage']
                 available_stats = [stat for stat in key_stats if stat in player_features.columns]
                 if available_stats:
+                    # Prepare data for the bar chart
                     # Prepare data for the bar chart
                     bar_data = pd.DataFrame({
                         'Stat': available_stats,
@@ -470,7 +471,6 @@ def main():
                 st.metric("MPG", f"{filtered_stats['MIN'].astype(float).mean():.1f}")
 
             # Performance Charts
-            # Performance Charts
             col1, col2 = st.columns(2)
 
             with col1:
@@ -547,9 +547,10 @@ def main():
                     "team": "Team name"
                     }}
                     ],
-                    "bonuses": "Brief description of known bonuses",
-                    "comparison": "Brief comparison to similar players",
-                    "cap_impact": "Brief description of salary cap impact"
+                    "bonuses": "Brief description of known salary bonuses",
+                    "comparison": "Brief comparison to similar players in the NBA",
+                    "salary_cap": "Current salary cap",
+                    "cap_impact": "Brief description of salary cap impact on player and team"
                     }}
                     Do not include any explanations, markdown formatting, or code blocks in your response - ONLY the JSON object.
                     """
@@ -610,15 +611,7 @@ def main():
                         cap_impact = contract_data.get("cap_impact", "No salary cap impact information available.")
                         st.write(cap_impact)
 
-                        # Add a disclaimer
-                        st.markdown(
-                            """
-                            <div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 0.8em; margin-top: 20px;">
-                            <strong>Note:</strong> This contract analysis was generated using AI and may not reflect the most current information. Please verify details with official NBA sources.
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                       
                     except json.JSONDecodeError as e:
                         st.error(f"Failed to parse JSON response: {e}")
                         st.write("Raw response (for debugging):")
@@ -631,6 +624,55 @@ def main():
                     st.error(f"Error generating contract analysis: {e}")
                     import traceback
                     st.code(traceback.format_exc())
-
+            st.markdown("---")
+            st.subheader("Strategic Analysis")
+            
+            with st.spinner("Generating player analysis..."):
+                try:
+                    # Create a focused prompt for player analysis
+                    prompt = f"""
+                    Provide a concise analysis of {selected_player} covering:
+                    1. Contract situation and market value
+                    2. Performance strengths and weaknesses
+                    3. Team fit and strategic recommendations
+                    
+                    Keep the analysis factual, data-driven, and easy to understand.
+                    """
+                    
+                    # Generate analysis
+                    response = client.models.generate_content(
+                        model="gemini-2.0-flash",
+                        contents=prompt
+                    )
+                    
+                    analysis = response.text.strip()
+                    
+                    # Display analysis in a clean, organized format
+                    st.markdown(analysis)
+                    
+                    # Add useful reference links
+                    st.markdown("---")
+                    st.markdown("### Reference Links")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("[NBA.com](https://www.nba.com)")
+                        st.markdown("[Basketball Reference](https://www.basketball-reference.com/players/)")
+                    with col2:
+                        st.markdown("[NBA Salary Cap Info](https://www.nba.com/news/free-agency-explained)")
+                        st.markdown("[Player News & Updates](https://www.nba.com/players)")
+                    
+                except Exception as e:
+                    st.error("Could not generate player analysis")
+                    with st.expander("View technical details"):
+                        st.code(traceback.format_exc())
+                         # Add a disclaimer
+                st.markdown(
+                    """
+                    <div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 0.8em; margin-top: 20px;">
+                    <strong>Note:</strong> This contract analysis was generated using AI and may not reflect the most current information. Please verify details with official NBA sources.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 if __name__ == "__main__":
     main()
