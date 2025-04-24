@@ -470,31 +470,60 @@ def main():
                 st.metric("MPG", f"{filtered_stats['MIN'].astype(float).mean():.1f}")
 
             # Performance Charts
+            # Performance Charts
             col1, col2 = st.columns(2)
+
             with col1:
                 # Scoring Trend
-                fig1 = px.line(filtered_stats, x='GAME_DATE', y='PTS',
-                               title='Points Per Game Trend')
+                fig1 = px.line(
+                    filtered_stats,
+                    x='GAME_DATE',
+                    y='PTS',
+                    title='Scoring Trend Over Time',
+                    labels={'GAME_DATE': 'Game Date', 'PTS': 'Points Scored'}
+                )
                 st.plotly_chart(fig1)
+                st.caption("This chart shows the player's scoring trend over the selected date range.")
 
                 # Overall Performance
-                filtered_stats['PERFORMANCE'] = (filtered_stats['PTS'].astype(float) +
-                                                 filtered_stats['REB'].astype(float) +
-                                                 filtered_stats['AST'].astype(float))
-                fig2 = px.scatter(filtered_stats, x='MIN', y='PERFORMANCE',
-                                  title='Minutes vs Performance')
+                filtered_stats['PERFORMANCE'] = (
+                    filtered_stats['PTS'].astype(float) +
+                    filtered_stats['REB'].astype(float) +
+                    filtered_stats['AST'].astype(float)
+                )
+                fig2 = px.scatter(
+                    filtered_stats,
+                    x='MIN',
+                    y='PERFORMANCE',
+                    title='Minutes Played vs Overall Performance',
+                    labels={'MIN': 'Minutes Played', 'PERFORMANCE': 'Overall Performance'}
+                )
                 st.plotly_chart(fig2)
+                st.caption("This chart highlights the relationship between minutes played and overall performance.")
+
             with col2:
                 # Minutes Played
-                fig3 = px.line(filtered_stats, x='GAME_DATE', y='MIN',
-                               title='Minutes Played')
+                fig3 = px.line(
+                    filtered_stats,
+                    x='GAME_DATE',
+                    y='MIN',
+                    title='Minutes Played Per Game',
+                    labels={'GAME_DATE': 'Game Date', 'MIN': 'Minutes Played'}
+                )
                 st.plotly_chart(fig3)
+                st.caption("This chart shows the player's minutes played per game over the selected date range.")
 
                 # Efficiency
                 filtered_stats['EFFICIENCY'] = filtered_stats['PERFORMANCE'] / filtered_stats['MIN'].astype(float)
-                fig4 = px.line(filtered_stats, x='GAME_DATE', y='EFFICIENCY',
-                               title='Player Efficiency Over Time')
+                fig4 = px.line(
+                    filtered_stats,
+                    x='GAME_DATE',
+                    y='EFFICIENCY',
+                    title='Player Efficiency Over Time',
+                    labels={'GAME_DATE': 'Game Date', 'EFFICIENCY': 'Efficiency'}
+                )
                 st.plotly_chart(fig4)
+                st.caption("This chart tracks the player's efficiency over the selected date range.")
 
         with tab3:
             with st.spinner("Analyzing contract information..."):
