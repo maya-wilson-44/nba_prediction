@@ -529,8 +529,7 @@ def main():
             with st.spinner("Analyzing contract information..."):
                 try:
                     # Initialize the Google GenAI client
-                    api_key = st.secrets['client']['api_key']
-                    client = genai.Client(api_key=api_key)
+                    client = genai.Client(api_key="AIzaSyAz56zLp5egYUz_2jGNTDYMddJW9KXNu88")
                     # Create a more structured prompt to get consistent JSON
                     prompt = f"""
                     Provide a detailed analysis of {selected_player}'s current NBA contract.
@@ -626,7 +625,6 @@ def main():
                     st.error(f"Error generating contract analysis: {e}")
                     import traceback
                     st.code(traceback.format_exc())
-            
             st.markdown("---")
             st.subheader("Strategic Analysis")
             
