@@ -12,11 +12,8 @@ import plotly.express as px
 import os
 from google import genai
 
-# Add this near the top of your code
-import os
-import importlib
-
-import  model4 as model
+# Import directly from model.py
+import model4 as model
 
 # Set page configuration
 st.set_page_config(page_title="NBA Salary Predictor and Performance Analysis", page_icon="🏀", layout="wide")
@@ -541,6 +538,16 @@ def main():
                             text=custom_text,
                             textposition='inside',
                             hovertemplate=hover_templates
+                        )
+
+                        # Add an annotation explaining the normalization
+                        fig.add_annotation(
+                            x=0.5,
+                            y=1.05,
+                            xref="paper",
+                            yref="paper",
+                            showarrow=False,
+                            font=dict(size=12)
                         )
 
                         # Update layout for better readability
