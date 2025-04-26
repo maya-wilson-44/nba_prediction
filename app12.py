@@ -125,17 +125,17 @@ def predict_salary_with_cap_and_tiers(player_features, model_instance, info_df, 
             elif feature == 'ts_percent':
                 prediction_df[feature] = player_features['TS_Percentage'] if 'TS_Percentage' in player_features.columns else 0.55
             elif feature == 'mp':
-                prediction_df[feature] = 25.0  # Default minutes per game
+                prediction_df[feature] = player_features['MIN'] if 'MIN' in player_features.columns else 30.0
             elif feature == 'age':
-                prediction_df[feature] = 28.0  # Default age
+                prediction_df[feature] = info_df['AGE'].values[0] if 'AGE' in info_df.columns else 25.0
             elif feature == 'experience':
                 prediction_df[feature] = info_df['SEASON_EXP'].values[0] if 'SEASON_EXP' in info_df.columns else 5.0
             elif feature == 'ws':
-                prediction_df[feature] = 3.0  # Default win shares
+                prediction_df[feature] = player_features['WS'] if 'WS' in player_features.columns else 0.0
             elif feature == 'bpm':
-                prediction_df[feature] = 0.0  # Default box plus/minus
+                prediction_df[feature] = player_features['BPM'] if 'BPM' in player_features.columns else 0.0
             else:
-                prediction_df[feature] = 0.0
+                prediction_df[feature] = 0.0  # Default value for any other missing features
 
   
     if prediction_df.empty:
@@ -353,7 +353,7 @@ def main():
     player_names.sort()
     
     # Set default player
-    default_player = "Lebron James" 
+    default_player = "LeBron James" 
     default_index = player_names.index(default_player) if default_player in player_names else 0
     
     # Player selection
@@ -402,6 +402,11 @@ def main():
             
             with tab1:
                 player_features = prepare_player_features(player_stats, info_df)
+                
+                # Add minutes per game to player_features if it's missing
+                if 'mp' not in player_features.columns and 'MIN' in player_stats.columns:
+                    player_features['mp'] = player_stats['MIN'].astype(float).mean()
+                
                 # Pass the player name to the prediction function
                 predicted_result = predict_salary_with_cap_and_tiers(player_features, model_instance, info_df, selected_player)
                 if predicted_result is not None:
@@ -426,28 +431,6 @@ def main():
                             unsafe_allow_html=True
                         )
 
-                    # Display tier information with appropriate styling
-                    tier_colors = {
-                        1: "#E0E0E0",  # Minimum
-                        2: "#C8E6C9",  # BAE
-                        3: "#B3E5FC",  # Room
-                        4: "#FFECB3",  # MLE
-                        5: "#D1C4E9",  # 10-15%
-                        6: "#BBDEFB",  # 15-20%
-                        7: "#FFCCBC",  # 20-25%
-                        8: "#F8BBD0",  # 25-30%
-                        9: "#FFD180",  # Max
-                        0: "#E0E0E0",  # Custom/Other
-                    }
-                    tier_color = tier_colors.get(predicted_result['Tier'], "#E0E0E0")
-                    st.markdown(
-                        f"""
-                        <div style="background-color: {tier_color}; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-                        <h3 style="margin: 0;">Salary Tier: {predicted_result['TierName']}</h3>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
 
                     # For max contract players, show additional context
                     if predicted_result['Tier'] == 9:
@@ -464,7 +447,7 @@ def main():
                     # Display key factors
                     st.subheader("Key Factors Influencing Salary")
                     # Create a bar chart of key stats
-                    key_stats = ['points', 'assists', 'reboundsTotal', 'Simple_PER', 'TS_Percentage']
+                    key_stats = ['points', 'assists', 'reboundsTotal', 'Simple_PER', 'TS_Percentage', 'mp']
                     available_stats = [stat for stat in key_stats if stat in player_features.columns]
                     if available_stats:
                         # Prepare data for the bar chart
@@ -479,11 +462,66 @@ def main():
                             'assists': 'Assists Per Game (APG)',
                             'reboundsTotal': 'Rebounds Per Game (RPG)',
                             'Simple_PER': 'Player Efficiency Rating (PER)',
-                            'TS_Percentage': 'True Shooting Percentage (TS%)'
+                            'TS_Percentage': 'True Shooting Percentage (TS%)',
+                            'mp': 'Minutes Per Game (MPG)'  # Added this line
                         }
 
                         # Apply the mapping to the Stat column
                         bar_data['Stat'] = bar_data['Stat'].map(stat_name_mapping)
+                        # Normalize PER to 0-100 scale based on the formula
+                        per_index = bar_data.index[bar_data['Stat'] == 'Player Efficiency Rating (PER)']
+                        if len(per_index) > 0:
+                            # Get the original PER value
+                            original_per = bar_data.loc[per_index, 'Value'].values[0]
+                            
+                            # Based on the calculation and typical NBA values:
+                            # - A value of 0 should map to 0
+                            # - An average player (~0.6-0.8) should map to ~50
+                            # - An elite player (~1.0-1.2) should map to ~85-100
+                            
+                            # Use a normalization formula where 0.8 maps to 50, and 1.4 maps to 100
+                            normalized_per = min(original_per * 100 / 1.4, 100)
+                            
+                            # Store the normalized value
+                            bar_data.loc[per_index, 'Value'] = normalized_per
+                        # Convert TS_Percentage from decimal to percentage (0-100 scale)
+                        ts_index = bar_data.index[bar_data['Stat'] == 'True Shooting Percentage (TS%)']
+                        if len(ts_index) > 0:
+                            bar_data.loc[ts_index, 'Value'] = bar_data.loc[ts_index, 'Value'] * 100
+                        
+                        # Create the bar chart
+                        fig = px.bar(
+                            bar_data,
+                            x='Stat',
+                            y='Value',
+                            title="Key Factors Influencing Salary",
+                            text='Value',
+                            height=500
+                        )
+
+                        # Create custom text formatting based on metric
+                        custom_text = []
+                        hover_templates = []
+
+                        for idx, row in bar_data.iterrows():
+                            stat, value = row['Stat'], row['Value']
+                            
+                            if stat == 'Player Efficiency Rating (PER)':
+                                # Show normalized value on bar, but include original in tooltip
+                                custom_text.append(f"{value:.1f}")
+                                hover_templates.append(f"<b>{stat}</b><br>Normalized: {value:.1f}/100<br>Original: {row.get('OriginalValue', value):.2f}")
+                            
+                            elif 'Percentage' in stat:
+                                custom_text.append(f"{value:.1f}%")
+                                hover_templates.append(f"<b>{stat}</b><br>Value: {value:.1f}%")
+                            
+                            elif stat == 'Minutes Per Game':  # Added this condition
+                                custom_text.append(f"{value:.1f}")
+                                hover_templates.append(f"<b>{stat}</b><br>Value: {value:.1f} minutes")
+                            
+                            else:  # Regular stats like points, rebounds, assists
+                                custom_text.append(f"{value:.1f}")
+                                hover_templates.append(f"<b>{stat}</b><br>Value: {value:.1f}")
 
                         # Create the bar chart
                         fig = px.bar(
@@ -491,13 +529,25 @@ def main():
                             x='Stat',
                             y='Value',
                             title="Key Factors Influencing Salary",
-                            text='Value'
+                            text='Value',
+                            height=500
                         )
 
-                        # Update the text formatting and position
+                        # Apply the custom text formatting
                         fig.update_traces(
-                            texttemplate='%{text:.2f}',  # Format text to 2 decimal places
-                            textposition='outside'       # Position text outside the bars
+                            text=custom_text,
+                            textposition='inside',
+                            hovertemplate=hover_templates
+                        )
+
+                        # Add an annotation explaining the normalization
+                        fig.add_annotation(
+                            x=0.5,
+                            y=1.05,
+                            xref="paper",
+                            yref="paper",
+                            showarrow=False,
+                            font=dict(size=12)
                         )
 
                         # Update layout for better readability
@@ -506,11 +556,13 @@ def main():
                             xaxis_title="Performance Metrics",   # Set x-axis title
                             title_font_size=18,                  # Increase title font size
                             xaxis_tickangle=-45,                 # Rotate x-axis labels for better readability
-                            showlegend=False                     # Hide legend
+                            showlegend=False,
+                            margin=dict(l=50, r=50, t=100, b=100),  # Add more bottom margin for labels
+                            autosize=True                 # Let it adjust to container size
                         )
 
                         # Display the chart
-                        st.plotly_chart(fig)
+                        st.plotly_chart(fig, use_container_width=True)
 
                     # Add an explanation box for the stats
                     with st.expander("Explanation of Key Stats"):
@@ -518,9 +570,9 @@ def main():
                         - **Points (PPG):** Average points scored per game.
                         - **Assists (APG):** Average assists made per game.
                         - **Rebounds (RPG):** Average total rebounds (offensive + defensive) per game.
-                        - **True Shooting Percentage (TS%):** A measure of shooting efficiency that accounts for field goals, three-pointers, and free throws.
-                        - **Simple PER:** A simplified version of the Player Efficiency Rating, which evaluates a player's overall performance per minute.
-                        - **Team Salary Commitment:** The total salary cap committed by the player's team.
+                        - **Player Efficiency Rating (PER):** A simplified and normalized (0-100 scale) version of the Player Efficiency Rating, which evaluates a player's overall performance per minute.
+                        - **True Shooting Percentage (TS%):** A shooting efficiency metric that accounts for field goals, three-point field goals, and free throws. It is expressed as a percentage.
+                        - **Minutes Per Game (MPG):** Average minutes played per game.
                         """)
 
                     # Add explanation of salary tiers
@@ -593,7 +645,7 @@ def main():
                         labels={'GAME_DATE': 'Game Date', 'PTS': 'Points Scored'}
                     )
                     st.plotly_chart(fig1)
-                    st.caption("This chart shows the player's scoring trend over the selected date range.")
+                    st.caption("This chart shows the player's point scoring trends over the selected date range.")
 
                     # Overall Performance
                     filtered_stats['PERFORMANCE'] = (
@@ -609,7 +661,8 @@ def main():
                         labels={'MIN': 'Minutes Played', 'PERFORMANCE': 'Overall Performance'}
                     )
                     st.plotly_chart(fig2)
-                    st.caption("This chart highlights the relationship between minutes played and overall performance.")
+                    st.caption("This chart highlights the relationship between minutes played and overall performance. " \
+                    "Overall Performance is calculated from Points, Rebounds, and Assists.")
 
                 with col2:
                     # Minutes Played
@@ -633,7 +686,8 @@ def main():
                         labels={'GAME_DATE': 'Game Date', 'EFFICIENCY': 'Efficiency'}
                     )
                     st.plotly_chart(fig4)
-                    st.caption("This chart tracks the player's efficiency over the selected date range.")
+                    st.caption("This chart tracks the player's efficiency over the selected date range. " \
+                    "Efficiency is calculated as the ratio of overall performance to minutes played.")
 
             with tab3:
                 with st.spinner("Analyzing contract information..."):
