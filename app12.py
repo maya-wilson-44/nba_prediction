@@ -12,8 +12,16 @@ import plotly.express as px
 import os
 from google import genai
 
-# Import directly from model.py
-import model4 as model
+# Add this near the top of your code
+import os
+import importlib
+
+# Force reload of the module
+if os.path.exists("model4.py"):
+    import model4 as model
+    importlib.reload(model)
+else:
+    st.error("model4.py not found in the current directory")
 
 # Set page configuration
 st.set_page_config(page_title="NBA Salary Predictor and Performance Analysis", page_icon="🏀", layout="wide")
