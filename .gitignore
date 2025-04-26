@@ -175,3 +175,5 @@ cython_debug/
 
 #streamlit
 .streamlit/
+#pycahse
+__pycache__/
