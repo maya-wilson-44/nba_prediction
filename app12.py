@@ -540,16 +540,6 @@ def main():
                             hovertemplate=hover_templates
                         )
 
-                        # Add an annotation explaining the normalization
-                        fig.add_annotation(
-                            x=0.5,
-                            y=1.05,
-                            xref="paper",
-                            yref="paper",
-                            showarrow=False,
-                            font=dict(size=12)
-                        )
-
                         # Update layout for better readability
                         fig.update_layout(
                             yaxis_title="Metric Value",          # Set y-axis title
