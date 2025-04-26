@@ -219,7 +219,7 @@ def prepare_player_features(player_stats, player_info):
 
 # If run directly, train the model
 if __name__ == "__main__":
-    model2 = train_model2()
+    model4 = train_model2()
     print("Model training complete")
 
 
