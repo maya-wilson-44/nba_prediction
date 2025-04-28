@@ -27,7 +27,7 @@ st.markdown("Predict NBA player salaries based on performance statistics")
 def load_model():
     try:
         # Import the train_model function directly from model.py
-        model_instance = model.train_model2()
+        model_instance = model.train_model4()
         return model_instance
     except Exception as e:
         st.error(f"Error loading/training model: {e}")
