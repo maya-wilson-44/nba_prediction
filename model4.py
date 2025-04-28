@@ -9,7 +9,7 @@ import os
 
 
 
-def train_model2():
+def train_model4():
     """Train and return the salary prediction model"""
     try:
         # Check if the dataset exists
@@ -219,7 +219,7 @@ def prepare_player_features(player_stats, player_info):
 
 # If run directly, train the model
 if __name__ == "__main__":
-    model4 = train_model2()
+    model4 = train_model4()
     print("Model training complete")
 
 
