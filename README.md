@@ -16,7 +16,9 @@ Salary Prediction: Get AI-powered salary predictions based on player statistics
 View key factors influencing the predicted salary
 Compare predicted value to actual contracts
 Contract Information: Access current contract details and history (when available)
+
 Technologies Used
+
 Python: Core programming language
 Streamlit: Web application framework
 Pandas: Data manipulation and analysis
@@ -24,7 +26,9 @@ NBA API: Real-time NBA statistics
 Scikit-learn: Machine learning model implementation
 Plotly: Interactive data visualization
 Pickle: Model serialization
+
 Model Information
+
 The salary prediction model was trained on NBA player statistics and salary data from recent seasons. The model uses the following features to make predictions:
 
 Points per game
@@ -35,6 +39,7 @@ Simple Player Efficiency Rating (PER)
 Team salary commitment
 
 Usage
+
 Select a player from the dropdown menu
 Navigate through the tabs to view different aspects of player analysis:
 Basic Info: Player profile and biographical information
