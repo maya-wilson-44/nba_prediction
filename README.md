@@ -1,8 +1,11 @@
 NBA Salary Predictor
+
 Project Overview
+
 The NBA Salary Predictor is a Streamlit web application that uses machine learning to predict NBA player salaries based on their performance statistics. The app provides a comprehensive player analysis dashboard with performance metrics, salary predictions, and contract information.
 
 Features
+
 Player Selection: Choose from a comprehensive database of NBA players
 Basic Player Information: View player details including team, position, experience, and physical attributes
 Performance Statistics: Analyze player performance with interactive charts and metrics
