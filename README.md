@@ -1,13 +1,13 @@
-NBA Salary Predictor
+**NBA Salary Predictor**
 
 
-Project Overview
+**Project Overview**
 
 
 The NBA Salary Predictor is a Streamlit web application that uses machine learning to predict NBA player salaries based on their performance statistics. The app provides a comprehensive player analysis dashboard with performance metrics, salary predictions, and contract information.
 
 
-Features
+**Features**
 
   - Player Selection: Choose from a comprehensive database of NBA players
 
@@ -26,24 +26,24 @@ Features
   - Contract Information: Access current contract details and history
 
 
-Technologies Used
+**Technologies Used**
 
-  Python: Core programming language
+  - Python: Core programming language
   
-  Streamlit: Web application framework
+  - Streamlit: Web application framework
   
-  Pandas: Data manipulation and analysis
+  - Pandas: Data manipulation and analysis
   
-  NBA API: Real-time NBA statistics
+  - NBA API: Real-time NBA statistics
   
-  Scikit-learn: Machine learning model implementation
+  - Scikit-learn: Machine learning model implementation
   
-  Plotly: Interactive data visualization
+  - Plotly: Interactive data visualization
   
-  Pickle: Model serialization
+  - Pickle: Model serialization
   
 
-Model Information
+**Model Information**
 
 The salary prediction model was trained on NBA player statistics and salary data from recent seasons. 
 
@@ -58,7 +58,7 @@ The model uses the following features to make predictions:
   - Team salary commitment
 
 
-Usage
+**Usage**
 
 
 Select a player from the dropdown menu
@@ -71,7 +71,8 @@ Navigate through the tabs to view different aspects of player analysis:
   - Contract Info: Current contract details (when available)
 
 
-Future Improvements
+**Future Improvements**
+
 - Integration with additional data sources for more comprehensive player analysis
 - Enhanced model accuracy with additional features and larger training dataset
 - Historical salary comparison and trend analysis
@@ -79,17 +80,17 @@ Future Improvements
 - Player comparison functionality
 
 
-Data Sources
+**Data Sources**
 
 - NBA API for real-time player statistics
 - Basketball Reference for historical data
 - Spotrac for contract information
 
 
-Acknowledgments
+**Acknowledgments**
 
 
-NBA for providing the API access to player statistics
-The Streamlit team for their excellent web app framework
-The open-source community for various libraries and tools used in this project
+- NBA for providing the API access to player statistics
+- The Streamlit team for their excellent web app framework
+- The open-source community for various libraries and tools used in this project
 
