@@ -21,7 +21,7 @@ The NBA Salary Predictor is a Streamlit web application that uses machine learni
 
   - Performance visualization with customizable date ranges
 
-  - Salary Prediction: Get AI-powered salary predictions based on player statistics, view key factors influencing the predicted salary, compare predicted value to actual contracts
+  - Salary Prediction: Gen AI-powered salary predictions based on player statistics, view key factors influencing the predicted salary, compare predicted value to actual contracts
   
   - Contract Information: Access current contract details and history
 
