@@ -370,8 +370,21 @@ def main():
             
             # Always get player info
             try:
-                player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=30)
-                info_df = pd.DataFrame(player_info.get_data_frames()[0])
+                @st.cache_data(ttl=3600)  # Cache for 1 hour
+                def get_cached_player_info(player_id):
+                    try:
+                        player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=60)
+                        return player_info.get_data_frames()[0]
+                    except:
+                        return None
+
+                # Usage:
+                cached_data = get_cached_player_info(player_id)
+                if cached_data is not None:
+                    info_df = pd.DataFrame(cached_data)
+                else:
+                    st.error("Unable to load player data.")
+                    return
                 
                 # Calculate age
                 birth_date = pd.to_datetime(info_df['BIRTHDATE'].values[0])
