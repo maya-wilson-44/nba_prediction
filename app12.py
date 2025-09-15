@@ -371,13 +371,17 @@ def main():
             # Always get player info
             try:
                 player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=30)
+                info_df = pd.DataFrame(player_info.get_data_frames()[0])
+                
+                # Calculate age
+                birth_date = pd.to_datetime(info_df['BIRTHDATE'].values[0])
+                age = (pd.Timestamp.now() - birth_date).days / 365.25
             except requests.exceptions.ReadTimeout:
                 st.error("NBA API request timed out. Please try again later.")
-            info_df = pd.DataFrame(player_info.get_data_frames()[0])
-
-            # Calculate age
-            birth_date = pd.to_datetime(info_df['BIRTHDATE'].values[0])
-            age = (pd.Timestamp.now() - birth_date).days / 365.25
+                return  # Exit the function or skip this section
+            except Exception as e:
+                st.error(f"Error fetching player data: {str(e)}")
+                return
 
         # Always show the player profile
         st.subheader("Player Profile")
