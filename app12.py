@@ -369,7 +369,10 @@ def main():
             has_recent_stats = not player_stats.empty
             
             # Always get player info
-            player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+            try:
+                player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=30)
+            except requests.exceptions.ReadTimeout:
+                st.error("NBA API request timed out. Please try again later.")
             info_df = pd.DataFrame(player_info.get_data_frames()[0])
 
             # Calculate age
