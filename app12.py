@@ -11,6 +11,7 @@ from nba_api.stats.endpoints import commonplayerinfo, playergamelog
 import plotly.express as px
 import os
 from google import genai
+import time
 
 # Import directly from model.py
 import model4 as model
@@ -370,20 +371,29 @@ def main():
             
             # Always get player info
             try:
-                @st.cache_data(ttl=3600)  # Cache for 1 hour
-                def get_cached_player_info(player_id):
-                    try:
-                        player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=60)
-                        return player_info.get_data_frames()[0]
-                    except:
-                        return None
+                from nba_api.stats.library.http import NBAStatsHTTP
 
-                # Usage:
-                cached_data = get_cached_player_info(player_id)
-                if cached_data is not None:
-                    info_df = pd.DataFrame(cached_data)
-                else:
-                    st.error("Unable to load player data.")
+                # Set headers before making requests
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+
+                # Configure the NBA API client
+                NBAStatsHTTP().send_api_request = lambda endpoint_url, parameters, referer, proxy, headers, timeout: requests.get(
+                    endpoint_url, 
+                    params=parameters, 
+                    headers=headers or {'User-Agent': 'Mozilla/5.0'}, 
+                    timeout=timeout or 30
+                )
+
+                # Add delay before API call
+                time.sleep(1)  # Wait 1 second
+
+                try:
+                    player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=60)
+                    info_df = pd.DataFrame(player_info.get_data_frames()[0])
+                except:
+                    st.error("NBA API is temporarily unavailable. Please try again later.")
                     return
                 
                 # Calculate age
